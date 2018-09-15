@@ -23,14 +23,14 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 
 	@Override
 	public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
-		transforPassword(session, realm, (PasswordUserCredentialModel) input);
+		transformPassword(session, realm, (PasswordUserCredentialModel) input);
 		return super.updateCredential(realm, user, input);
 		
 	}
 
 	@Override
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
-		transforPassword(session, realm, (PasswordUserCredentialModel) input);
+		transformPassword(session, realm, (PasswordUserCredentialModel) input);
 		return super.isValid(realm, user, input);
 	}
 	
