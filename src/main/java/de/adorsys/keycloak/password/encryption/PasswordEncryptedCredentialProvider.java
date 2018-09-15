@@ -2,14 +2,13 @@ package de.adorsys.keycloak.password.encryption;
 
 import java.text.ParseException;
 
-import javax.ws.rs.core.MultivaluedMap;
-
-import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.authenticators.broker.IdpUsernamePasswordForm;
+import org.keycloak.credential.CredentialInput;
+import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.models.KeyManager.ActiveRsaKey;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.credential.PasswordUserCredentialModel;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEObject;
@@ -17,19 +16,28 @@ import com.nimbusds.jose.crypto.RSADecrypter;
 
 import net.minidev.json.JSONObject;
 
-public class PassEncrUserNamePasswordForm extends IdpUsernamePasswordForm {
+public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvider {
+	public PasswordEncryptedCredentialProvider(KeycloakSession session) {
+		super(session);
+	}
 
 	@Override
-	public boolean validatePassword(AuthenticationFlowContext context, UserModel user,
-			MultivaluedMap<String, String> inputData) {
+	public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+		transforPassword(session, realm, (PasswordUserCredentialModel) input);
+		return super.updateCredential(realm, user, input);
 		
-		// Read private key of keycloack.
-		KeycloakSession session = context.getSession();
-		RealmModel realm = context.getRealm();
-        ActiveRsaKey rsaKey = session.keys().getActiveRsaKey(realm);
+	}
 
+	@Override
+	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
+		transforPassword(session, realm, (PasswordUserCredentialModel) input);
+		return super.isValid(realm, user, input);
+	}
+	
+	private static final void transformPassword(KeycloakSession session, RealmModel realm, final PasswordUserCredentialModel input){
+        ActiveRsaKey rsaKey = session.keys().getActiveRsaKey(realm);
         // read Password from input data
-		String passwordJWE = (String) inputData.getFirst("password");
+        String passwordJWE = input.getValue();
 
 		// Parse JWE
         JWEObject jweObject;
@@ -55,9 +63,8 @@ public class PassEncrUserNamePasswordForm extends IdpUsernamePasswordForm {
         // - make sure time is not far in the pass.
         
         // Set clreartext password in inputData
-        inputData.putSingle("password", password);
-		// put baclk into input data
-		return super.validatePassword(context, user, inputData);
+        input.setValue(password);
 	}
+	
 
 }
