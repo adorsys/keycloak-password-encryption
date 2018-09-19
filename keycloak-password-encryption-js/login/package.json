@@ -1,0 +1,22 @@
+{
+  "name": "keycloak-password-encryption-js",
+  "version": "1.0.0",
+  "description": "Frontend Js for encrpyting user passwords before sending them to keycloak during authentification (login, registration, password reset)",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify -e index.js -o resources/js/keycloak-password-encryption.js"
+  },
+  "keywords": [
+    "keycloak",
+    "password",
+    "encryption",
+    "jose"
+  ],
+  "author": "Adorsys GmbH & Co. KG",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "browserify": "^16.2.2",
+    "node-jose": "^1.0.0"
+  },
+  "devDependencies": {}
+}
