@@ -3,7 +3,9 @@
 const jwksDownloader = require('./jwks-downloader')
 
 function registerPasswordSubmitEvent (passwordElt, confirmPwdElt1, confirmPwdElt2, submitBtnElt, authFormElt) {
-    if(!passwordElt) throw Error("No password elt provided")
+    if(!passwordElt) {
+        throw "No password elt provided"
+    }
     submitBtnElt.onclick = function(e) {
         // enhancedPwd with a 'timestamp' value (to prevent a replay attact)
         const enhancedPwd = {
@@ -11,7 +13,7 @@ function registerPasswordSubmitEvent (passwordElt, confirmPwdElt1, confirmPwdElt
             pwd: passwordElt.value
         }
 
-        jwksDownloader.KeyPromise
+        jwksDownloader.keyPromise
             .then(encKey => {
                 return jwksDownloader.encryptPwd(JSON.stringify(enhancedPwd), encKey)
             })
