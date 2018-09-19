@@ -1,2 +1,3 @@
 node_modules/
 keycloak-password-encryption-js.js
+resources/js/keycloak-password-encryption.js
