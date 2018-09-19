@@ -1,7 +1,4 @@
 
-// Load openids configs and  jwks when the browser load the javascript file.
-jwksDownloader.downloadOpenIdConfigs();
-
 // On window load
 window.onload = function() {
     const submitBtnElt = this.document.getElementById('kc-login');
