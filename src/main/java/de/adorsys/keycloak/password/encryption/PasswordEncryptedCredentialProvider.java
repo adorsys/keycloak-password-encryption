@@ -1,6 +1,8 @@
 package de.adorsys.keycloak.password.encryption;
 
 import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.PasswordCredentialProvider;
@@ -56,11 +58,17 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 		}
         JSONObject jsonObject = jweObject.getPayload().toJSONObject();
         String timestamp = (String)jsonObject.get("timestamp");
-        String password = (String)jsonObject.get("pwd");
         
         // Validate timestap
         // - Parse timestamp
         // - make sure time is not far in the pass.
+        ZonedDateTime dateTime = ZonedDateTime.parse(timestamp);
+        ZonedDateTime now = ZonedDateTime.now();
+        if(ChronoUnit.MINUTES.between(dateTime, now) > 2) {
+        	throw new IllegalStateException("Timestamp is to far in the past.");
+        }
+        
+        String password = (String)jsonObject.get("pwd");
         
         // Set clreartext password in inputData
         input.setValue(password);

@@ -1,5 +1,6 @@
 package de.adorsys.keycloak.password.encryption;
 
+import org.keycloak.Config.Scope;
 import org.keycloak.credential.CredentialProviderFactory;
 import org.keycloak.models.KeycloakSession;
 

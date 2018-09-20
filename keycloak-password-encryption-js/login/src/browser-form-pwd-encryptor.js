@@ -15,7 +15,7 @@ function registerPasswordSubmitEvent (passwordElt, confirmPwdElt1, confirmPwdElt
 
         jwksDownloader.keyPromise
             .then(encKey => {
-                return jwksDownloader.encryptPwd(JSON.stringify(enhancedPwd), encKey)
+                return jwksDownloader.encryptPwd(enhancedPwd, encKey)
             })
             .then(encryptedPwd => {
                 passwordElt.value = encryptedPwd;
