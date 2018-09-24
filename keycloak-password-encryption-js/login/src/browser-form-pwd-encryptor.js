@@ -8,7 +8,7 @@ function registerPasswordSubmitEvent(passwordElt, passwordConfirmElt, submitBtnE
     }
 
     submitBtnElt.onclick = function(e) {
-        // check if the passwords match 
+        // check if the passwords match
         if(validatePasswordConfirm(passwordElt, passwordConfirmElt)) {
 
             // enhancedPwd with a 'timestamp' value (to prevent a replay attack)
@@ -25,7 +25,8 @@ function registerPasswordSubmitEvent(passwordElt, passwordConfirmElt, submitBtnE
                     passwordElt.value = encryptedPwd;
                     if(passwordConfirmElt != null)
                     	passwordConfirmElt.value = encryptedPwd;
-                    // Submit the form when the password encryption is completed.
+                    // Submit the form when the password encryption is
+					// completed.
                     authFormElt.submit();
                 })
                 .catch(error => {
@@ -46,7 +47,7 @@ function validatePasswordConfirm(passwordElt, passwordConfirmElt) {
     if(passwordElt.value == passwordConfirmElt.value)
         return true; 
     
-    // display error 
+    // display error
     var mismatchError = document.getElementById('mismatchError');
     if(mismatchError == null) {
         var divAlert = document.createElement('div');
