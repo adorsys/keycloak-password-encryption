@@ -1,10 +1,10 @@
 "use strict";
 
-const jwksDownloader = require('./jwks-downloader')
+const jwksDownloader = require('./jwks-downloader');
 
 function registerPasswordSubmitEvent(passwordElt, passwordConfirmElt, submitBtnElt, authFormElt) {
     if(!passwordElt) {
-        throw "No password elt provided"
+        throw "No password elt provided";
     }
 
     submitBtnElt.onclick = function(e) {
@@ -15,11 +15,11 @@ function registerPasswordSubmitEvent(passwordElt, passwordConfirmElt, submitBtnE
             const enhancedPwd = {
                 timestamp: new Date(),
                 pwd: passwordElt.value
-            }
+            };
 
-            jwksDownloader.keyPromise
+            jwksDownloader.keyPromise()
                 .then(encKey => {
-                    return jwksDownloader.encryptPwd(enhancedPwd, encKey)
+                    return jwksDownloader.encryptPwd(enhancedPwd, encKey);
                 })
                 .then(encryptedPwd => {
                     passwordElt.value = encryptedPwd;
@@ -49,6 +49,7 @@ function validatePasswordConfirm(passwordElt, passwordConfirmElt) {
     
     // display error
     var mismatchError = document.getElementById('mismatchError');
+    
     if(mismatchError == null) {
         var divAlert = document.createElement('div');
         divAlert.id = 'mismatchError';

@@ -1,7 +1,7 @@
 
 // On window load
 window.onload = function() {
-
+	
     const authFormLoginElt = this.document.getElementById("kc-form-login");
     const authFormUpdateElt = this.document.getElementById("kc-passwd-update-form");
     const authFormRegisterElt = this.document.getElementById("kc-register-form");
