@@ -9,6 +9,7 @@ import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.models.KeyManager.ActiveRsaKey;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ModelException;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.PasswordUserCredentialModel;
@@ -28,13 +29,19 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 
 	@Override
 	public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+		PasswordUserCredentialModel passwordUserCredentialModel = (PasswordUserCredentialModel) input;
+		Boolean adminRequest = passwordUserCredentialModel.isAdminRequest();
+		if(adminRequest) {
+			logger.warn("Illegal request: You are not allowed to change the user password!");
+			throw new ModelException("Illegal request: You are not allowed to change the user password!");
+		}
+		
 		try {
-			transformPassword(session, realm, (PasswordUserCredentialModel) input);
+			transformPassword(session, realm, passwordUserCredentialModel);
 		} catch (IllegalStateException e) {
 			return false;
 		}
 		return super.updateCredential(realm, user, input);
-
 	}
 
 	@Override
@@ -64,7 +71,6 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 		}
 
 		// decrypt password using keycloak private key
-		// Decrypt with private key
 		try {
 			jweObject.decrypt(new RSADecrypter(rsaKey.getPrivateKey()));
 		} catch (JOSEException e) {
@@ -86,8 +92,15 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 
 		String password = (String) jsonObject.get("pwd");
 
-		// Set clreartext password in inputData
+		// Set cleartext password in inputData
 		input.setValue(password);
 	}
+
+    @Override
+    public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
+//		logger.warn("Illegal request: You are not allowed to reset the user credentials!");
+//		throw new RuntimeException("Illegal request: You are not allowed to reset the user credentials!");
+    	super.disableCredentialType(realm, user, credentialType);
+    }
 
 }
