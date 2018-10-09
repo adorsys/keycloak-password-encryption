@@ -3,6 +3,8 @@ package de.adorsys.keycloak.password.encryption;
 import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jboss.logging.Logger;
 import org.keycloak.credential.CredentialInput;
@@ -31,11 +33,21 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 	public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
 		PasswordUserCredentialModel passwordUserCredentialModel = (PasswordUserCredentialModel) input;
 		Boolean adminRequest = passwordUserCredentialModel.isAdminRequest();
-		if(adminRequest) {
-			logger.warn("Illegal request: You are not allowed to change the user password!");
-			throw new ModelException("Illegal request: You are not allowed to change the user password!");
-		}
 		
+		if (adminRequest) {
+			boolean restrictAdminAccess = false;
+			String realmsWithAdminRestriction = System.getenv("REALMS_WITH_ADMIN_RESTRICTION");
+			if (realmsWithAdminRestriction != null) {
+				List<String> realms = Arrays.asList(realmsWithAdminRestriction.split(","));
+				restrictAdminAccess = !realms.isEmpty() && realms.contains(realm.getName());
+				
+				if (restrictAdminAccess) {
+					logger.warn("Illegal request: You are not allowed to change the user password!");
+					throw new ModelException("Illegal request: You are not allowed to change the user password!");
+				}
+			}
+		}
+
 		try {
 			transformPassword(session, realm, passwordUserCredentialModel);
 		} catch (IllegalStateException e) {
@@ -48,7 +60,7 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 	public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
 		try {
 			transformPassword(session, realm, (PasswordUserCredentialModel) input);
-		} catch (IllegalStateException  e) {
+		} catch (IllegalStateException e) {
 			return false;
 		}
 		return super.isValid(realm, user, input);
@@ -96,11 +108,11 @@ public class PasswordEncryptedCredentialProvider extends PasswordCredentialProvi
 		input.setValue(password);
 	}
 
-    @Override
-    public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
+	@Override
+	public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
 //		logger.warn("Illegal request: You are not allowed to reset the user credentials!");
 //		throw new RuntimeException("Illegal request: You are not allowed to reset the user credentials!");
-    	super.disableCredentialType(realm, user, credentialType);
-    }
+		super.disableCredentialType(realm, user, credentialType);
+	}
 
 }
